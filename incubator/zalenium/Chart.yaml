@@ -1,0 +1,11 @@
+name: zalenium
+apiVersion: v1
+appVersion: 3.14.0
+version: 0.1.0
+description: zalenium helm chart for selenium grid
+home: https://opensource.zalando.com/zalenium
+sources:
+- https://github.com/teracyhq/helm-charts
+maintainers:
+- name: hieptq
+  email: hieptq8888@gmail.com

@@ -1,0 +1,139 @@
+{{- $fullName := include "fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}
+  labels:
+    app: {{ $fullName }}
+    chart: {{ template "chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.hub.replicaCount }}
+  strategy:
+    type: {{ default "RollingUpdate" .Values.hub.strategyType }}
+  selector:
+    matchLabels:
+      app: {{ $fullName }}
+      zalenium: {{ .Values.hub.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $fullName }}
+        zalenium: {{ .Values.hub.name }}
+      {{- with .Values.hub.annotations }}
+        annotations:
+{{ toYaml .Values.hub.annotations | indent 8 }}
+      {{- end }}
+    spec:
+      initContainers:
+        - name: zalenium-prepare
+          image: dosel/zalenium:latest
+          command: ['sh', '-c', 'sudo chown -R seluser:seluser /home/seluser/videos']
+          volumeMounts:
+            - name: {{ $fullName }}-videos
+              mountPath: /home/seluser/videos
+      serviceAccountName: {{ template "serviceAccountName" . }}
+      containers:
+        - name: {{ template "name" . }}-{{ .Values.hub.name }}
+          image: "{{ .Values.hub.image.repository }}:{{ .Values.hub.image.tag }}"
+          imagePullPolicy: {{ .Values.hub.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.hub.port }}
+              protocol: TCP
+          {{- if .Values.hub.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /grid/console
+              port: {{ .Values.hub.port }}
+            initialDelaySeconds: 90
+            periodSeconds: 5
+          {{- end }}
+          {{- if .Values.hub.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: /grid/console
+              port: {{ .Values.hub.port }}
+            timeoutSeconds: 1
+          {{- end }}
+          resources:
+{{ toYaml .Values.hub.resources | indent 12 }}
+          env:
+            - name: ZALENIUM_KUBERNETES_CPU_REQUEST
+              value: {{ .Values.hub.cpuRequest }}
+            - name: ZALENIUM_KUBERNETES_CPU_LIMIT
+              value: {{ .Values.hub.cpuLimit }}
+            - name: ZALENIUM_KUBERNETES_MEMORY_REQUEST
+              value: {{ .Values.hub.memRequest }}
+            {{- if eq true .Values.hub.sauceLabsEnabled }}
+            - name: SAUCE_USERNAME
+              value: {{ .Values.hub.sauceUserName }}
+            - name: SAUCE_ACCESS_KEY
+              value: {{ .Values.hub.sauceAccessKey }}
+            {{- end }}
+            {{- if eq true .Values.hub.browserStackEnabled }}
+            - name: BROWSER_STACK_USER
+              value: {{ .Values.hub.browserStackUser }}
+            - name: BROWSER_STACK_KEY
+              value: {{ .Values.hub.browserStackKey }}
+            {{- end }}
+            {{- if eq true .Values.hub.testingBotEnabled }}
+            - name: TESTINGBOT_KEY
+              value: {{ .Values.hub.testingBotKey }}
+            - name: TESTINGBOT_SECRET
+              value: {{ .Values.hub.testingBotSecret }}
+            {{- end }}
+          args:
+            - start
+            - '--desiredContainers'
+            - '{{ .Values.hub.desiredContainers }}'
+            - '--maxDockerSeleniumContainers'
+            - '{{ .Values.hub.maxDockerSeleniumContainers }}'
+            - '--sauceLabsEnabled'
+            - '{{ .Values.hub.sauceLabsEnabled }}'
+            - '--browserStackEnabled'
+            - '{{ .Values.hub.browserStackEnabled }}'
+            - '--testingBotEnabled'
+            - '{{ .Values.hub.testingBotEnabled }}'
+            - '--videoRecordingEnabled'
+            - '{{ .Values.hub.videoRecordingEnabled }}'
+            - '--screenWidth'
+            - '{{ .Values.hub.screenWidth }}'
+            - '--screenHeight'
+            - '{{ .Values.hub.screenHeight }}'
+            - '--timeZone'
+            - '{{ .Values.hub.timeZone }}'
+            - '--seleniumImageName'
+            - '{{ .Values.hub.seleniumImageName }}'
+            - '--maxTestSessions'
+            - '{{ .Values.hub.maxTestSessions }}'
+            - '--debugEnabled'
+            - '{{ .Values.hub.debugEnabled }}'
+            - '--sendAnonymousUsageInfo'
+            - '{{ .Values.hub.sendAnonymousUsageInfo }}'
+            - '--keepOnlyFailedTests'
+            - '{{ .Values.hub.keepOnlyFailedTests }}'
+          volumeMounts:
+            {{- range $key, $val := .Values.mountStorage }}
+            {{- if .enabled }}    
+            - name: {{ $fullName }}-{{ $key }}
+              mountPath: {{ .mountPath }}
+            {{- end }}
+            {{- end }}   
+      volumes:
+        {{- range $key, $val := .Values.mountStorage }}
+        {{- if .enabled }} 
+        - name: {{ $fullName }}-{{ $key }}
+        {{- if .pvcs.enabled }}
+          {{- if and (.pvcs.useExisting) (not (empty .pvcs.name))}}
+          persistentVolumeClaim:
+            claimName: {{ .pvcs.name }}
+          {{- else }}
+          persistentVolumeClaim:
+            claimName: {{ $fullName }}-{{ $key }}
+          {{- end }}
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+        {{- end }}
+        {{- end }}
