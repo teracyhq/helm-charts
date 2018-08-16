@@ -1,0 +1,25 @@
+{{- if .Values.issuer.enabled -}}
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Issuer
+metadata:
+  name: {{ .Values.issuer.name }}
+  labels:
+    app: {{ template "fullname" . }}
+    chart: {{ template "chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  acme:
+    # The ACME server URL
+    server: {{ .Values.issuer.server }}
+
+    # Email address used for ACME registration
+    email: {{ .Values.issuer.email }}
+
+    # Name of a secret used to store the ACME account private key
+    privateKeySecretRef:
+      name: {{ .Values.issuer.name }}
+
+    # Enable the HTTP-01 challenge provider
+    http01: {}
+{{- end }}

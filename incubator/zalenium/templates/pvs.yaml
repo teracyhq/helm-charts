@@ -1,0 +1,32 @@
+{{- $fullName := include "fullname" . -}}
+{{- $chartName := include "chart" . -}}
+{{- range $key, $val := .Values.pvs }}
+{{- if $val.enabled }}
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: {{ $.Release.Name }}-{{ $key }}
+  labels:
+    app: {{ $fullName }}
+    chart: {{ $chartName }}
+    release: {{ $.Release.Name }}
+    heritage: {{ $.Release.Service }}
+spec:
+  accessModes:
+    - {{ $val.accessMode | quote }}
+  capacity:
+      storage: {{ $val.size | quote }}
+{{- if $val.storageClass }}
+{{- if (eq "-" $val.storageClass) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ $val.storageClass }}"
+{{- end }}
+{{- end }}
+{{- if $val.hostPath }}
+  hostPath:
+    path: {{ $val.hostPath.path | quote }}
+{{- end }}
+---
+{{- end }}
+{{- end }}

@@ -1,0 +1,29 @@
+{{- if .Values.services.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-{{ .Values.services.name }}
+  labels:
+    app: {{ template "fullname" . }}
+    chart: {{ template "chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+{{- if not ( empty .Values.serviceAnnotations) }}
+  annotations:
+{{ toYaml .Values.serviceAnnotations | indent 4 }}
+{{- end }}
+spec:
+  type: {{ .Values.services.type }}
+  sessionAffinity: {{ .Values.services.serviceSessionAffinity | quote }}
+  ports:
+    - name: {{ .Values.services.name }}
+      protocol: TCP
+      port: {{ .Values.services.port }}
+      targetPort: {{ .Values.services.targetPort }}
+      {{- if .Values.services.nodePort }}
+      nodePort: {{ .Values.services.nodePort }}
+      {{- end }}
+  selector:
+    app: {{ template "fullname" . }}
+    zalenium: {{ .Values.hub.name }}
+{{- end }}

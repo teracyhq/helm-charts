@@ -1,0 +1,43 @@
+# Default values for e2e-test.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+app:
+  enabled: true
+  replicaCount: 1
+  strategyType: Recreate
+
+  name: ${E2E_APP_NAME}
+
+  image:
+    repository: ${E2E_IMAGE_REPOSITORY}
+    tag: ${E2E_IMAGE_TAG}
+    pullPolicy: IfNotPresent
+
+  # securityContext:
+  #   enabled: true
+  #   fsGroup: 1000
+
+  resolveDependency: ${E2E_RESOLVE_DEPENDENCY}
+
+  mvnDebug: ${E2E_MAVEN_DEBUB}
+
+  env:
+    hub_status_url: ${E2E_ENV_HUB_STATUS_URL}
+    test_path: ${E2E_ENV_TEST_PATH}
+
+  args:
+    test: ${E2E_ARG_TEST_PHASE}
+    hub_url: ${E2E_ARG_HUB_URL}
+    base_url: ${E2E_ARG_BASE_URL}
+    platform: ${E2E_ARG_PLATFORM}
+    browser_name: ${E2E_ARG_BROWSER}
+    # servermail:
+    # isusingservermail:
+    # cucumber.options:
+    thread_number: ${E2E_ARG_THREAD_NUMBER}
+    failIfNoTests: ${E2E_ARG_FAIL_IF_NO_TEST}
+    failfast: ${E2E_FAIL_FAST}
+
+#pv:
+#  hostPath: /usr/src/iorad

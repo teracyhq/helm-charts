@@ -1,0 +1,41 @@
+{{- if .Values.app.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ template "chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.app.replicaCount }}
+  strategy:
+    type: {{ default "RollingUpdate" .Values.app.strategyType }}
+  selector:
+    matchLabels:
+      app: {{ template "name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Values.app.name }}
+          image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}"
+          imagePullPolicy: {{ .Values.app.image.pullPolicy }}
+          env:
+            - name: HUB_STATUS_URL
+              value: {{ .Values.app.env.hub_status_url | quote }}
+            - name: TESTPATH
+              value: {{ .Values.app.env.test_path | quote }}
+          ports:
+            - name: e2e
+              containerPort: 80
+              protocol: TCP
+          workingDir: {{ .Values.app.env.test_path }}
+          command: ['sh', '-c']
+          args: ["/wait-for-mount.sh -- mvn dependency:resolve; mvn clean test {{- range $key, $val := .Values.app.args }} -D{{ $key }}={{ $val }} {{- end }} "]
+{{- end }}
