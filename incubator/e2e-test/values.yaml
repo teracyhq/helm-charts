@@ -1,0 +1,41 @@
+# Default values for e2e-test.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+app:
+  enabled: true
+  replicaCount: 1
+  strategyType: Recreate
+
+  name: teracy-e2e
+
+  image:
+    repository: hieptranquoc/teracy-e2e
+    tag: maven-3.5.4-jdk8
+    pullPolicy: IfNotPresent
+
+  # securityContext:
+  #   enabled: true
+  #   fsGroup: 1000
+  
+  resolveDependency: true
+
+  mvnDebug: true
+
+  env:
+    hub_status_url: http://<domain>/wd/hub/status
+    test_path: /opt/app
+
+  args: []
+    # test: TestRunner*
+    # hub_url: http://<domain>/wd/hub
+    # base_url: http://<domain>
+    # platform: linux
+    # browser_name: chrome
+    # servermail:
+    # isusingservermail:
+    # cucumber.options:
+    # thread_number:
+    # failIfNoTests:
+    # failfast:
+

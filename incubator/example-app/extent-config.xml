@@ -1,0 +1,135 @@
+<extentreports>
+	<configuration>
+		<!-- report theme --> <!-- standard, dark -->
+		<theme>standard</theme>
+
+		<!-- document encoding -->  <!-- defaults to UTF-8 -->
+		<encoding>UTF-8</encoding>
+
+		<!-- protocol for script and stylesheets -->   <!-- defaults to https -->
+		<protocol>https</protocol>
+
+		<!-- title of the document -->
+		<documentTitle>Iorad Test Report</documentTitle>
+
+		<!-- report name - displayed at top-nav -->
+		<reportName>ToolsQA - Cucumber Report</reportName>
+
+		<!-- global date format override -->  <!-- defaults to yyyy-MM-dd -->
+		<dateFormat>yyyy-MM-dd</dateFormat>
+
+		<!-- global time format override -->   <!-- defaults to HH:mm:ss -->
+		<timeFormat>HH:mm:ss</timeFormat>
+
+		<!-- custom javascript -->
+		<scripts>
+      <![CDATA[
+        $(document).ready(function() {
+        	
+        	setToggleNodes();
+        	showHide();
+        	decoTest();
+            
+            function showHide() {
+                var tests = document.getElementsByClassName("test");
+                var stepList = document.querySelectorAll(".subview-right .steps");
+                for (var i = 0; i < stepList.length; i++) {
+                    stepList[i].style.display = 'none';
+                }
+                        
+                for (var i = 0; i < tests.length; i++) {
+                    tests[i].addEventListener("click", function () {
+                        setToggleNodes();
+                    });
+                }
+            }
+            
+            function setToggleNodes() {
+            	var scenarios = document.querySelectorAll(".subview-right .scenario .desc");
+                var stepList = document.querySelectorAll(".subview-right .steps");
+                for (var i = 0; i < stepList.length; i++) {
+                    stepList[i].style.display = 'none';
+                }
+                for (var i = 0; i < scenarios.length; i++) {
+                    scenarios[i].addEventListener("click", function () {
+                        var stepChild = this.parentNode.getElementsByClassName("steps")[0];
+                        if (stepChild.style.display === 'none') {
+                            stepChild.style.display = 'block';
+                        }
+                        else {
+                            stepChild.style.display = 'none';
+                        }
+                    });
+                }
+                var scenariooutlines = document.querySelectorAll(".subview-right .scenariooutline .desc");
+                var scenarionodes = document.querySelectorAll(".subview-right .scenariooutline >ul.steps");
+                for (var i = 0; i < scenariooutlines.length; i++) {
+                    scenariooutlines[i].scenario_group = scenarionodes[i];
+                    scenariooutlines[i].addEventListener("click", function () {
+                        if (this.scenario_group.style.display === 'none') {
+                            this.scenario_group.style.display = 'block';
+                        }
+                        else {
+                            this.scenario_group.style.display = 'none';
+                        }
+                        
+                        var child_scenarios = this.scenario_group.querySelectorAll(".scenario > .bdd-step-name");
+		
+		                for (var i = 0; i < child_scenarios.length; i++) {
+		                    child_scenarios[i].addEventListener("click", function () {
+		                        var stepChild = this.parentNode.getElementsByClassName("steps")[0];
+		                        if (stepChild.style.display === 'none') {
+		                            stepChild.style.display = 'block';
+		                        }
+		                        else {
+		                            stepChild.style.display = 'none';
+		                        }
+		                    });
+		                }
+                        
+                    });
+                }
+            }
+            
+            function decoTest() {
+                var nodes = document.getElementsByClassName("scenario node");
+                var stepList = document.getElementsByClassName("steps");
+                for (var i = 0; i < nodes.length; i++) {
+                    nodes[i].className = "scenario node pass";
+                }
+                for (var i = 0; i < stepList.length; i++) {
+                    var liList = stepList[i].getElementsByTagName("li");
+                    for (var j = 0; j < liList.length; j++) {
+                       
+                        if (liList[j].className.includes("fail")) {
+                            nodes[i].className = "scenario node fail";
+                            break;
+                        }
+                        else if (liList[j].className.includes("skip")) {
+                            nodes[i].className = "scenario node skip";
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+      ]]>
+		</scripts>
+
+		<!-- custom styles -->
+		<styles>
+      <![CDATA[
+        div[status='pass'] {
+            background: #8ddfaf none repeat scroll 0 0
+        }
+        div[status='fail'] {
+            background: #ff9a9a none repeat scroll 0 0;
+        }
+        
+        div[status='skip'] {
+            background: #cc9900 none repeat scroll 0 0;
+        }
+      ]]>
+		</styles>
+	</configuration>
+</extentreports>

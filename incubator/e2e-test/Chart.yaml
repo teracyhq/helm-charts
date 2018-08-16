@@ -1,0 +1,11 @@
+name: teracy-e2e
+apiVersion: v1
+appVersion: "0.1"
+version: "0.1.0"
+description: Helm Chart for E2E-Test
+home: https://gitlab.com/hieptranquoc/zalenium-helm-chart
+sources:
+  - https://gitlab.com/hieptranquoc/zalenium-helm-chart
+maintainers:
+  - name: hieptq
+    email: hieptq8888@gmail.com

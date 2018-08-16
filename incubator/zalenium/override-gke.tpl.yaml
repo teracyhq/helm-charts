@@ -1,0 +1,66 @@
+# template for overriding values.yaml
+
+hub:
+  env:
+    - name: ZALENIUM_KUBERNETES_CPU_REQUEST
+      value: 200m
+    - name: ZALENIUM_KUBERNETES_CPU_LIMIT
+      value: 400m
+    - name: ZALENIUM_KUBERNETES_MEMORY_REQUEST
+      value: 200m
+
+  args:
+    desiredContainers: ${ZALENIUM_HUB_DESIRED_CONTAINERS}
+    videoRecordingEnabled: ${ZALENIUM_HUB_VIDEO_RECORD_ENABLE}
+    screenWidth: ${ZALENIUM_HUB_SCREEN_WIDTH}
+    screenHeight: ${ZALENIUM_HUB_SCREEN_HEIGHT}
+    timeZone: ${ZALENIUM_HUB_TIME_ZONE}
+    seleniumImageName: ${ZALENIUM_HUB_SELENIUM_IMAGE}
+    maxTestSessions: ${ZALENIUM_HUB_MAX_TEST_SESSIONS}
+    sendAnonymousUsageInfo: ${ZALENIUM_HUB_SEND_USAGE}
+    debugEnabled: ${ZALENIUM_HUB_DEBUG_ENABLE}
+    keepOnlyFailedTests: ${ZALENIUM_HUB_KEEP_FAILED_TEST}
+    logJson: ${ZALENIUM_HUB_LOG_JSON_FORMAT}
+    # gridUser: allows you to specify a user to enable basic auth protection
+    # gridPassword: allows you to specify a password to enable basic auth protection
+    # sauceLabsEnabled: Determines if the Sauce Labs node is started
+    # browserStackEnabled: Determines if the Browser Stack node is started
+    # testingBotEnabled: Determines if the TestingBot node is started
+    # startTunnel: When using a cloud testing platform is enabled, starts the tunnel to allow local testing
+
+  volumeMounts:
+    - name: video
+      mountPath: /home/seluser/videos
+
+ingress:
+  enabled: ${ZALENIUM_INGRESS_ENABLED}
+  hosts:
+    - enabled: true
+      host: ${ZALENIUM_HUB_HOST}
+      path: /
+      backend:
+        serviceName: teracy-zalenium-hub
+        servicePort: 4444
+
+pvs:
+  video:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    hostPath:
+      path: /data/zalenium-shared/
+
+pvcs:
+  video:
+    enabled: true
+#     # existingClaim:
+#     ## data Persistent Volume Storage Class
+#     ## If defined, storageClassName: <storageClass>
+#     ## If set to "-", storageClassName: "", which disables dynamic provisioning
+#     ## If undefined (the default) or set to null, no storageClassName spec is
+#     ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+#     ##   GKE, AWS & OpenStack)
+#     ##
+#     # storageClass: "-"
+    accessMode: ReadWriteOnce
+    size: 10Gi

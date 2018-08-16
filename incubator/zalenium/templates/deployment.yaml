@@ -1,0 +1,87 @@
+{{- if .Values.hub.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-{{ .Values.hub.name }}
+  labels:
+    app: {{ template "fullname" . }}
+    chart: {{ template "chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.hub.replicaCount }}
+  strategy:
+    type: {{ default "RollingUpdate" .Values.hub.strategyType }}
+  selector:
+    matchLabels:
+      app: {{ template "fullname" . }}
+      zalenium: {{ .Values.hub.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+        zalenium: {{ .Values.hub.name }}
+      {{- with .Values.hub.annotations }}
+        annotations:
+{{ toYaml .Values.hub.annotations | indent 8 }}
+      {{- end }}
+    spec:
+      {{- if .Values.hub.securityContext.enabled }}
+      securityContext:
+        fsGroup: {{ .Values.hub.securityContext.fsGroup }}
+      {{- end }}
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      {{- end }}
+      containers:
+        - name: {{ template "name" . }}-{{ .Values.hub.name }}
+          image: "{{ .Values.hub.image.repository }}:{{ .Values.hub.image.tag }}"
+          imagePullPolicy: {{ .Values.hub.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.hub.port }}
+              protocol: TCP
+          {{- if .Values.hub.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /grid/console
+              port: {{ .Values.hub.port }}
+            initialDelaySeconds: 30
+            timeoutSeconds: 2
+            periodSeconds: 3
+          {{- end }}
+          {{- if .Values.hub.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: /grid/console
+              port: {{ .Values.hub.port }}
+            initialDelaySeconds: 10
+            timeoutSeconds: 2
+            periodSeconds: 3
+          {{- end }}
+          env:
+          {{- range .Values.hub.env }}
+            - name: {{ .name }}
+              value: {{ .value }}
+          {{- end }}
+          args:
+            - start
+            {{- range $key, $val := .Values.hub.args }}
+            - '--{{ $key }}'
+            - '{{ $val }}'
+            {{- end }}
+          volumeMounts:
+          {{- range .Values.hub.volumeMounts }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+          {{- end }}
+      volumes:
+        {{- range $key, $val := .Values.pvcs }}
+        {{- if .enabled }}
+        - name: {{ $key }}
+          persistentVolumeClaim:
+            claimName: {{ $.Release.Name }}-{{ $key }}
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+        {{- end }}
+{{- end }}

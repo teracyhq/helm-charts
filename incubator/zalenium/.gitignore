@@ -1,0 +1,5 @@
+.DS_Store
+override.yaml
+charts/*
+config/*
+!config/*k8s-tls*

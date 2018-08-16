@@ -1,0 +1,128 @@
+# Default values for zalenium.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+serviceAccount:
+  create: true
+  ## Use the following Kubernetes Service Account name if not created
+  name: zalenium
+
+rbac:
+  create: true
+  ## Run the zalenium hub container with the ability to deploy/manage containers of jobs
+  ## cluster-wide or only within namespace
+  clusterWideAccess: true
+
+hub:
+  enabled: true
+
+  name: hub
+
+  replicaCount: 1
+
+  strategyType: Recreate
+
+  securityContext:
+    enabled: true
+    fsGroup: 1000
+
+  image: 
+    repository: dosel/zalenium
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  port: 4444
+
+  livenessProbe:
+    enabled: true
+
+  readinessProbe:
+    enabled: true
+
+  env: []
+
+  args: {}
+
+  volumeMounts: []
+
+services:
+  enabled: true
+  name: hub
+  type: ClusterIP
+  serviceSessionAffinity: None
+  targetPort: 4444
+  port: 4444
+  #nodePort: 8080
+
+issuer:
+  enabled: false
+  name: letsencrypt
+  server: https://acme-staging.api.letsencrypt.org/directory
+  email: example@mail.com
+
+certManager:
+  enabled: false
+  certs:
+    - name: app
+      enabled: false
+      issuer: letsencrypt
+      commonName: zalenium.k8s
+      dnsNames:
+        - zalenium.k8s
+      domains:
+        - zalenium.k8s
+
+ingress:
+  enabled: false
+  # backend:
+  #   serviceName: default-http-backend
+  #   servicePort: 80
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    # kubernetes.io/tls-acme: "true"
+  hosts: []
+  tls: []
+
+pvs: []
+#  video:
+#    enabled: false
+#    accessMode: ReadWriteOnce
+#    size: 10Gi
+#    hostPath:
+#      path: /data/zalenium-shared/
+#  data:
+#    enabled: false
+#    accessMode: ReadWriteOnce
+#    size: 10Gi
+#    hostPath:
+#      path: /tmp/mounted
+
+## Persist data to a persistent volume
+pvcs: []
+#  video:
+#    enabled: false
+#     # existingClaim:
+#     ## data Persistent Volume Storage Class
+#     ## If defined, storageClassName: <storageClass>
+#     ## If set to "-", storageClassName: "", which disables dynamic provisioning
+#     ## If undefined (the default) or set to null, no storageClassName spec is
+#     ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+#     ##   GKE, AWS & OpenStack)
+#     ##
+#     # storageClass: "-"
+#    accessMode: ReadWriteOnce
+#    size: 10Gi
+#  data:
+#    enabled: false
+#     # existingClaim:
+#     ## data Persistent Volume Storage Class
+#     ## If defined, storageClassName: <storageClass>
+#     ## If set to "-", storageClassName: "", which disables dynamic provisioning
+#     ## If undefined (the default) or set to null, no storageClassName spec is
+#     ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+#     ##   GKE, AWS & OpenStack)
+#     ##
+#     # storageClass: "-"
+#    accessMode: ReadWriteOnce
+#    size: 10Gi
