@@ -35,9 +35,9 @@ script:
   done
 after_success:
 - |
-  if [ $TRAVIS_BRANCH = 'master' ] && [ $TRAVIS_PULL_REQUEST = 'false' ]; then
-    ./.travis/sync-repo.sh
-  fi
+  #if [ $TRAVIS_BRANCH = 'master' ] && [ $TRAVIS_PULL_REQUEST = 'false' ]; then
+  ./.travis/sync-repo.sh
+  #fi
 notifications:
   email: false
   slack:
