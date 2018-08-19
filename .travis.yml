@@ -8,6 +8,8 @@ env:
   - INCUBATOR_REPO_URL=https://phucvd-incubator.storage.googleapis.com/
   - GCS_BUCKET_STABLE=gs://phucvd
   - GCS_BUCKET_INCUBATOR=gs://phucvd-incubator
+before_install:
+- git submodule update --init --recursive
 install:
 - wget -q ${HELM_URL}/${HELM_TARBALL}
 - tar xzfv ${HELM_TARBALL}
@@ -17,17 +19,18 @@ install:
 before_script:
 - git config --global user.name "Phuc Bot"
 - git config --global user.email "phucvd.ce@gmail.com"
+- chmod ugo+x ./.travis/sync-repo.sh
 script:
 - |
   # Check Stable folder 
-  for dir in `ls -d stable/*/`; do
+  for dir in `ls -d ./stable/*/`; do
    helm lint $dir
    if [ $? != 0 ]; then
     travis_terminate 1
    fi
   done
   # Check Incubator folder 
-  for dir in `ls -d incubator/*/`; do
+  for dir in `ls -d ./incubator/*/`; do
    helm lint $dir
    if [ $? != 0 ]; then
     travis_terminate 1
