@@ -31,7 +31,8 @@ main() {
 
 authenticate() {
     echo "Authenticating with Google Cloud..."
-    gcloud auth activate-service-account --key-file <(base64 --decode <<< "$SYNC_CREDS")
+    #gcloud auth activate-service-account --key-file <(base64 --decode <<< "$SYNC_CREDS")
+    gcloud auth activate-service-account --key-file credential.json
 }
 
 sync_repo() {
