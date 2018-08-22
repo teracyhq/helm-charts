@@ -14,22 +14,37 @@ before_install:
 - openssl aes-256-cbc -K $encrypted_cbce4ac2ef86_key -iv $encrypted_cbce4ac2ef86_iv
   -in credential.json.enc -out credential.json -d
 install:
+# Install Helm Chart
 - wget -q ${HELM_URL}/${HELM_TARBALL}
 - tar xzfv ${HELM_TARBALL}
 - PATH=`pwd`/linux-amd64/:$PATH
 - helm init --client-only
-- if [ ! -d ${HOME}/google-cloud-sdk ]; then export CLOUDSDK_CORE_DISABLE_PROMPTS=1;
-  curl https://sdk.cloud.google.com | bash; fi
+#Install GDK
+- if [ ! -d ${HOME}/google-cloud-sdk ]; then
+   export CLOUDSDK_CORE_DISABLE_PROMPTS=1;
+   curl https://sdk.cloud.google.com | bash;
+  fi
 - source /home/travis/google-cloud-sdk/path.bash.inc
 before_script:
 - git config --global user.name "Phuc Bot"
 - git config --global user.email "phucvd.ce@gmail.com"
 - chmod ugo+x ./.travis/sync-repo.sh
 script:
-- "# Check Stable folder \nfor dir in `ls -d ./stable/*/`; do\n helm lint $dir\n if
-  [ $? != 0 ]; then\n  travis_terminate 1\n fi\ndone\n# Check Incubator folder \nfor
-  dir in `ls -d ./incubator/*/`; do\n helm lint $dir\n if [ $? != 0 ]; then\n  travis_terminate
-  1\n fi\ndone\n"
+  # Check Stable folder
+  - >
+      for dir in `ls -d ./stable/*/`; do
+        helm lint $dir
+        if [ $? != 0 ]; then
+          travis_terminate 1
+        fi
+      done
+      # Check Incubator folder
+      for dir in `ls -d ./incubator/*/`; do
+        helm lint $dir
+        if [ $? != 0 ]; then
+          travis_terminate 1
+        fi
+      done
 after_success:
 - |
   #if [ $TRAVIS_BRANCH = 'master' ] && [ $TRAVIS_PULL_REQUEST = 'false' ]; then
