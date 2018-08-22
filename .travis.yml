@@ -10,12 +10,17 @@ env:
   - GCS_BUCKET_INCUBATOR=gs://phucvd-incubator
 before_install:
 - git submodule update --init --recursive
+# Decrypt the credentials we added to the repo using the key we added with the Travis command line tool
+- openssl aes-256-cbc -K $encrypted_cbce4ac2ef86_key -iv $encrypted_cbce4ac2ef86_iv -in credential.json.enc -out credential.json -d
 install:
 - wget -q ${HELM_URL}/${HELM_TARBALL}
 - tar xzfv ${HELM_TARBALL}
 - PATH=`pwd`/linux-amd64/:$PATH
 - helm init --client-only
-- pip install gsutil
+#- pip install gsutil
+- if [ ! -d ${HOME}/google-cloud-sdk ]; then
+     curl https://sdk.cloud.google.com | bash;
+  fi
 before_script:
 - git config --global user.name "Phuc Bot"
 - git config --global user.email "phucvd.ce@gmail.com"
