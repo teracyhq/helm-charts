@@ -19,9 +19,10 @@ install:
 - helm init --client-only
 #- pip install gsutil
 - if [ ! -d ${HOME}/google-cloud-sdk ]; then
-     curl https://sdk.cloud.google.com | bash > /dev/null;
+     export CLOUDSDK_CORE_DISABLE_PROMPTS=1;
+     curl https://sdk.cloud.google.com | bash;
   fi
-- source ${HOME}/google-cloud-sdk/path.bash.inc
+- source /home/travis/google-cloud-sdk/path.bash.inc
 before_script:
 - git config --global user.name "Phuc Bot"
 - git config --global user.email "phucvd.ce@gmail.com"
