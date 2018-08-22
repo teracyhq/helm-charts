@@ -45,7 +45,7 @@ sync_repo() {
     echo "Syncing repo '$repo_dir'..."
 
     mkdir -p "$sync_dir"
-    if ! gsutil cp "$bucket/index.yaml" "$index_dir/index.yaml"; then
+    if [ ! gsutil cp "$bucket/index.yaml" "$index_dir/index.yaml" ] && [ ! $ALLOW_OVERWRITE_INDEX_FILE ]; then
         log_error "Exiting because unable to copy index locally. Not safe to proceed."
         exit 1
     fi

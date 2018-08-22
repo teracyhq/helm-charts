@@ -8,6 +8,7 @@ env:
   - INCUBATOR_REPO_URL=https://phucvd-incubator.storage.googleapis.com/
   - GCS_BUCKET_STABLE=gs://phucvd
   - GCS_BUCKET_INCUBATOR=gs://phucvd-incubator
+  - ALLOW_OVERWRITE_INDEX_FILE=true
 before_install:
 - git submodule update --init --recursive
 # Decrypt the credentials we added to the repo using the key we added with the Travis command line tool
