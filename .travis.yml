@@ -2,53 +2,48 @@ language: python
 sudo: false
 env:
   global:
-    - HELM_URL=https://storage.googleapis.com/kubernetes-helm
-    - HELM_TARBALL=helm-v2.9.1-linux-amd64.tar.gz
-    - STABLE_REPO_URL=https://phucvd.storage.googleapis.com/
-    - INCUBATOR_REPO_URL=https://phucvd-incubator.storage.googleapis.com/
-    - GCS_BUCKET_STABLE=gs://phucvd
-    - GCS_BUCKET_INCUBATOR=gs://phucvd-incubator
-    - ALLOW_OVERWRITE_INDEX_FILE=true
+  - HELM_URL=https://storage.googleapis.com/kubernetes-helm
+  - HELM_TARBALL=helm-v2.9.1-linux-amd64.tar.gz
+  - STABLE_REPO_URL=https://phucvd.storage.googleapis.com/
+  - INCUBATOR_REPO_URL=https://phucvd-incubator.storage.googleapis.com/
+  - GCS_BUCKET_STABLE=gs://phucvd
+  - GCS_BUCKET_INCUBATOR=gs://phucvd-incubator
+  - ALLOW_OVERWRITE_INDEX_FILE=true
 before_install:
-  - git submodule update --init --recursive
-  - openssl aes-256-cbc -K $encrypted_cbce4ac2ef86_key -iv $encrypted_cbce4ac2ef86_iv -in credential.json.enc -out credential.json -d
+- git submodule update --init --recursive
+- openssl aes-256-cbc -K $encrypted_cbce4ac2ef86_key -iv $encrypted_cbce4ac2ef86_iv
+  -in credential.json.enc -out credential.json -d
 install:
-# Install Helm Chart
-  - wget -q ${HELM_URL}/${HELM_TARBALL}
-  - tar xzfv ${HELM_TARBALL}
-  - PATH=`pwd`/linux-amd64/:$PATH
-  - helm init --client-only
-#Install GDK
-  - if [ ! -d ${HOME}/google-cloud-sdk ]; then
-    export CLOUDSDK_CORE_DISABLE_PROMPTS=1;
-    curl https://sdk.cloud.google.com | bash;
-    fi
-  - source /home/travis/google-cloud-sdk/path.bash.inc
+- wget -q ${HELM_URL}/${HELM_TARBALL}
+- tar xzfv ${HELM_TARBALL}
+- PATH=`pwd`/linux-amd64/:$PATH
+- helm init --client-only
+- if [ ! -d ${HOME}/google-cloud-sdk ]; then export CLOUDSDK_CORE_DISABLE_PROMPTS=1;
+  curl https://sdk.cloud.google.com | bash; fi
+- source /home/travis/google-cloud-sdk/path.bash.inc
 before_script:
-  - git config --global user.name "Phuc Bot"
-  - git config --global user.email "phucvd.ce@gmail.com"
-  - chmod ugo+x ./.travis/sync-repo.sh
+- git config --global user.name "Phuc Bot"
+- git config --global user.email "phucvd.ce@gmail.com"
+- chmod ugo+x ./.travis/sync-repo.sh
 script:
-  # Check Stable folder
-  - ls -d ./stable/*/
-    if [ $? = 0 ]
-      for dir in `ls -d ./stable/*/`; do
-        helm lint $dir
-        if [ $? != 0 ]; then
-          travis_terminate 1
-        fi
-      done
-    fi
-  # Check Incubator folder
-  - ls -d ./incubator/*/
-    if [ $? = 0 ]
-      for dir in `ls -d ./incubator/*/`; do
-        helm lint $dir
-        if [ $? != 0 ]; then
-          travis_terminate 1
-        fi
-      done
-    fi
+- ls -d ./stable/*/
+- if [ $? = 0 ]; then
+    for dir in `ls -d ./stable/*/`; do 
+      helm lint $dir
+      if [ $? != 0 ]; then 
+        travis_terminate 1 
+      fi 
+    done 
+  fi
+- ls -d ./incubator/*/ 
+- if [ $? = 0 ]; then 
+    for dir in `ls -d ./incubator/*/`; do 
+      helm lint $dir 
+      if [ $? != 0 ]; then 
+        travis_terminate 1 
+      fi 
+    done 
+  fi
 after_success:
 - |
   #if [ $TRAVIS_BRANCH = 'master' ] && [ $TRAVIS_PULL_REQUEST = 'false' ]; then
@@ -57,5 +52,5 @@ after_success:
 notifications:
   slack:
     rooms:
-      secure: "RpjBkM20hCPxFEhvjNPnXGUrcCD61UiZmCAz6LKT3tFXF4AmQC/JzW+eLNsN48L7steN4Bqo1DbnuX36TvviLHzW31r2cKdkq/OYBk0f+upKZs4pS4O5imaQ4le/I4plpAejFKErsHrnqV4Ta2Anadu/j1WGj/THhrQSSXeYdJzHHN4ILN0/Ugnywi55mwnRsgpjaJV8U6SmLG95g8dmfNhG7FFpoBWw7Ku5QbJIKAuFgKnbvujGT1ua7IPYCD7zmuvAYMJl3hZhLVAVnwQUcm5TEuQyBNMFdMXm1oEGi1YlFIwwy2UAoJA3aUBepw/EdxSI86WqnskxtfirVHbu8f37AohsktjbXyXX8wI9hg0HaWbj7Of0Y0EtOuKgKtIqWFAdwUz9vXmvt12epL38PQcmQ8G0Bzke45n766l6RZSTez6W3z/lbpo/Jgt6MByCK0dEmwisSfofdxUeImNnQXxntlanUMnCuQY9OQEJI2I3dIAKi+l6hqaPQzpJu3f58dI1AmksrNSz+xSyHi92AqTxIMG3SuERrQOA/RizIpLukQbsYVa8ZX7bmu/d0vu10NQlMQgO8VdTKK4zNsg/Y3e9uFGCX0H0dDkTPCNS2T5bXccIvbp/P+/I/e3Zk46YIMArzETgUWEMQrAAV/rigx5SKx05hqd7n4W337ITpXA="
-    on_success: always # default: always
+      secure: "e6XGYFTDrZpQv2tf9yZfmh1CICmnYrVg/k19qes/akA8FZPJDtiPdYIKWI2+mcsuh8qgF3X67iHSN3EtbUrhNcF57SchQ+oEK31wbNDaf+vT7ToTya4mXxamAGJtLwL3C6OtPyViFr8AmLRFtIiSMiEVv+WCDMvz6Iqrzvq+qn3iItqacf/Bn/7Co8ynUPiJ5i8lAw5kDwJJtFH0LaAyyKr7QyrRFTj7V3G3NTKFX68++W+WWxPBuan8WtgiUPT1OEVH8o+zDlDJmh/qGTLb1N8wkQTzQOfFpNoR6IdXBmV6+E6gb88Nlv5kmcYtMWqrKQwI7BWrjqviVj19TQZPxhjpG7tdy0MMPErilnRqiUSP/fdqLc1OR4zRqa8ZkUTVd1Z1G+iO/a57m1y7+SksERr49s/cgEj45Qt+r/wk9l0xBUxUNYzLNpCdHhnehsQ+s3oT1NnbNarANWa63UoaCInjs4hr8XMnvXAvoCHYwJp4Z5I7HI0sqQaMXxoQtsaOVOmSTvqNFpMDnHADqcwVZCQXH8TiJ3xoiyhE6QeJ/fMFoeVaJW5p1U0vZVW+9SHVQ8ivO9vMhhqoEI3gz2WRkZORTU5aGq/n5PQnUeS/slpjmB/Yt7Yz1XZkwVkkwW6vXmU9ku+FDB2g39eShIzHIRYhsRL7RY1U/xTLt6skNS0="
+    on_success: always
