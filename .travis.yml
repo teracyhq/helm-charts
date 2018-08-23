@@ -26,24 +26,21 @@ before_script:
 - git config --global user.email "phucvd.ce@gmail.com"
 - chmod ugo+x ./.travis/sync-repo.sh
 script:
-- ls -d ./stable/*/
-- if [ $? = 0 ]; then
-    for dir in `ls -d ./stable/*/`; do 
-      helm lint $dir
-      if [ $? != 0 ]; then 
-        travis_terminate 1 
-      fi 
-    done 
-  fi
-- ls -d ./incubator/*/ 
-- if [ $? = 0 ]; then 
-    for dir in `ls -d ./incubator/*/`; do 
-      helm lint $dir 
-      if [ $? != 0 ]; then 
-        travis_terminate 1 
-      fi 
-    done 
-  fi
+- |
+  # Check format helm stable
+  for dir in `find stable/* -type d`; do 
+    helm lint $dir
+    if [ $? != 0 ]; then 
+      travis_terminate 1 
+    fi 
+  done 
+  # Check format helm incubator
+  for dir in `find incubator/* -type d`; do 
+    helm lint $dir
+    if [ $? != 0 ]; then 
+      travis_terminate 1 
+    fi 
+  done 
 after_success:
 - |
   #if [ $TRAVIS_BRANCH = 'master' ] && [ $TRAVIS_PULL_REQUEST = 'false' ]; then
