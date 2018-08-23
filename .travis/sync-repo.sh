@@ -46,14 +46,14 @@ sync_repo() {
 
     mkdir -p "$sync_dir"
     mkdir -p "$index_dir"
-    if [ ! gsutil cp "$bucket/index.yaml" "$index_dir/index.yaml" ] && [ $ALLOW_OVERWRITE_INDEX_FILE = 'false' ]; then
+    if [ ! gsutil cp "$bucket/index.yaml" "$index_dir/index.yaml" ] && [ ! $ALLOW_OVERWRITE_INDEX_FILE ]; then
         log_error "Exiting because unable to copy index locally. Not safe to proceed."
         exit 1
     fi
 
     local exit_code=0
 
-    for dir in `ls -d ${repo_dir}/*/`; do
+    for dir in `find ${repo_dir}/* -type d`; do
         if helm dependency build "$dir"; then
             helm package --destination "$sync_dir" "$dir"
         else
