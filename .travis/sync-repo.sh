@@ -54,7 +54,7 @@ sync_repo() {
 
     local exit_code=0
 
-    for dir in `find ${repo_dir}/* -type d`; do
+    for dir in `find ${repo_dir}/ -mindepth 1 -maxdepth 1 -type d`; do
         if helm dependency build "$dir"; then
             helm package --destination "$sync_dir" "$dir"
         else

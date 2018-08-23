@@ -28,14 +28,14 @@ before_script:
 script:
 - |
   # Check format helm stable
-  for dir in `find stable/* -type d`; do 
+  for dir in `find stable/ -mindepth 1 -maxdepth 1 -type d`; do 
     helm lint $dir
     if [ $? != 0 ]; then 
       travis_terminate 1 
     fi 
   done 
   # Check format helm incubator
-  for dir in `find incubator/* -type d`; do 
+  for dir in `find incubator/ -mindepth 1 -maxdepth 1 -type d`; do 
     helm lint $dir
     if [ $? != 0 ]; then 
       travis_terminate 1 
