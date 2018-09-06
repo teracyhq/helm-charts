@@ -4,13 +4,14 @@ env:
   global:
   - HELM_URL=https://storage.googleapis.com/kubernetes-helm
   - HELM_TARBALL=helm-v2.9.1-linux-amd64.tar.gz
-  - STABLE_REPO_URL=https://phucvd.storage.googleapis.com/
-  - INCUBATOR_REPO_URL=https://phucvd-incubator.storage.googleapis.com/
-  - GCS_BUCKET_STABLE=gs://phucvd
-  - GCS_BUCKET_INCUBATOR=gs://phucvd-incubator
+  - STABLE_REPO_URL=https://teracyhq.storage.googleapis.com/
+  - INCUBATOR_REPO_URL=https://teracyhq-incubator.storage.googleapis.com/
+  - GCS_BUCKET_STABLE=gs://teracyhq
+  - GCS_BUCKET_INCUBATOR=gs://teracyhq-incubator
   - ALLOW_OVERWRITE_INDEX_FILE=true
 before_install:
 - git submodule update --init --recursive
+#Please replace the following line with your credential command
 - openssl aes-256-cbc -K $encrypted_cbce4ac2ef86_key -iv $encrypted_cbce4ac2ef86_iv
   -in credential.json.enc -out credential.json -d
 install:
@@ -22,8 +23,8 @@ install:
   curl https://sdk.cloud.google.com | bash; fi
 - source /home/travis/google-cloud-sdk/path.bash.inc
 before_script:
-- git config --global user.name "Phuc Bot"
-- git config --global user.email "phucvd.ce@gmail.com"
+- git config --global user.name "<Replace your name here>"
+- git config --global user.email "<Replace your email here>"
 - chmod ugo+x ./.travis/sync-repo.sh
 script:
 - |
@@ -43,11 +44,11 @@ script:
   done 
 after_success:
 - |
-  #if [ $TRAVIS_BRANCH = 'master' ] && [ $TRAVIS_PULL_REQUEST = 'false' ]; then
-  ./.travis/sync-repo.sh
-  #fi
+  if [ $TRAVIS_BRANCH == 'master' ] && [ $TRAVIS_PULL_REQUEST == 'false' ]; then
+    ./.travis/sync-repo.sh
+  fi
 notifications:
   slack:
     rooms:
-      secure: "e6XGYFTDrZpQv2tf9yZfmh1CICmnYrVg/k19qes/akA8FZPJDtiPdYIKWI2+mcsuh8qgF3X67iHSN3EtbUrhNcF57SchQ+oEK31wbNDaf+vT7ToTya4mXxamAGJtLwL3C6OtPyViFr8AmLRFtIiSMiEVv+WCDMvz6Iqrzvq+qn3iItqacf/Bn/7Co8ynUPiJ5i8lAw5kDwJJtFH0LaAyyKr7QyrRFTj7V3G3NTKFX68++W+WWxPBuan8WtgiUPT1OEVH8o+zDlDJmh/qGTLb1N8wkQTzQOfFpNoR6IdXBmV6+E6gb88Nlv5kmcYtMWqrKQwI7BWrjqviVj19TQZPxhjpG7tdy0MMPErilnRqiUSP/fdqLc1OR4zRqa8ZkUTVd1Z1G+iO/a57m1y7+SksERr49s/cgEj45Qt+r/wk9l0xBUxUNYzLNpCdHhnehsQ+s3oT1NnbNarANWa63UoaCInjs4hr8XMnvXAvoCHYwJp4Z5I7HI0sqQaMXxoQtsaOVOmSTvqNFpMDnHADqcwVZCQXH8TiJ3xoiyhE6QeJ/fMFoeVaJW5p1U0vZVW+9SHVQ8ivO9vMhhqoEI3gz2WRkZORTU5aGq/n5PQnUeS/slpjmB/Yt7Yz1XZkwVkkwW6vXmU9ku+FDB2g39eShIzHIRYhsRL7RY1U/xTLt6skNS0="
+      secure: "<replace your slack channel's secure key here>"
     on_success: always
