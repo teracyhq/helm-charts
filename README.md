@@ -17,7 +17,7 @@ For more information on using Helm, refer to the [Helm's documentation](https://
 
 Just do the following:
 ```
-$ helm repo add teracyhq-incubator https://teracyhq-incubator.storage.googleapis.com/
+$ helm repo add teracyhq-incubator https://teracyhq_incubator.storage.googleapis.com/
 $ helm install teracyhq-incubator/<chart-name>
 ```
 
