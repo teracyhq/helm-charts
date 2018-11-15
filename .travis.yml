@@ -4,16 +4,10 @@ env:
   global:
   - HELM_URL=https://storage.googleapis.com/kubernetes-helm
   - HELM_TARBALL=helm-v2.9.1-linux-amd64.tar.gz
-  - STABLE_REPO_URL=https://teracyhq.storage.googleapis.com/
-  - INCUBATOR_REPO_URL=https://teracyhq-incubator.storage.googleapis.com/
-  - GCS_BUCKET_STABLE=gs://teracyhq
-  - GCS_BUCKET_INCUBATOR=gs://teracyhq-incubator
   - ALLOW_OVERWRITE_INDEX_FILE=true
 before_install:
 - git submodule update --init --recursive
-#Please replace the following line with your credential command
-- openssl aes-256-cbc -K $encrypted_cbce4ac2ef86_key -iv $encrypted_cbce4ac2ef86_iv
-  -in credential.json.enc -out credential.json -d
+
 install:
 - wget -q ${HELM_URL}/${HELM_TARBALL}
 - tar xzfv ${HELM_TARBALL}
@@ -27,28 +21,27 @@ before_script:
 - git config --global user.email "<Replace your email here>"
 - chmod ugo+x ./.travis/sync-repo.sh
 script:
-- |
-  # Check format helm stable
-  for dir in `find stable/ -mindepth 1 -maxdepth 1 -type d`; do 
-    helm lint $dir
-    if [ $? != 0 ]; then 
-      travis_terminate 1 
-    fi 
-  done 
-  # Check format helm incubator
-  for dir in `find incubator/ -mindepth 1 -maxdepth 1 -type d`; do 
-    helm lint $dir
-    if [ $? != 0 ]; then 
-      travis_terminate 1 
-    fi 
-  done 
+- "# Check format helm stable\nfor dir in `find stable/ -mindepth 1 -maxdepth 1 -type
+  d`; do \n  helm lint $dir\n  if [ $? != 0 ]; then \n    travis_terminate 1 \n  fi
+  \ndone \n# Check format helm incubator\nfor dir in `find incubator/ -mindepth 1
+  -maxdepth 1 -type d`; do \n  helm lint $dir\n  if [ $? != 0 ]; then \n    travis_terminate
+  1 \n  fi \ndone \n"
 after_success:
 - |
-  if [ $TRAVIS_BRANCH == 'master' ] && [ $TRAVIS_PULL_REQUEST == 'false' ]; then
-    ./.travis/sync-repo.sh
+  if [ -z ${GCP_KEY_FILE+x} ] || [ -z ${STABLE_REPO_URL+x} ] || [ -z ${INCUBATOR_REPO_URL+x} ] ||  [ -z ${GCS_BUCKET_STABLE+x} ] || [ -z ${GCS_BUCKET_INCUBATOR+x} ]; then
+    echo "Artifact publish skipped.";
+    echo "Please define GCP_KEY_FILE, STABLE_REPO_URL, INCUBATOR_REPO_URL, GCS_BUCKET_STABLE, GCS_BUCKET_INCUBATOR in travis config for artifact publish.";
+  else
+    echo $GCP_KEY_FILE | base64 --decode > credential.json;
+
+    if [ $TRAVIS_BRANCH == 'master' ] && [ $TRAVIS_PULL_REQUEST == 'false' ]; then
+      ./.travis/sync-repo.sh;
+    fi
+    rm -rf credential.json;
   fi
+
 notifications:
   slack:
     rooms:
-      secure: "<replace your slack channel's secure key here>"
-    on_success: always
+      secure: p+udG/UUhXUbMKpgIJw/+zG/tKGXiV+pollx1X98/DMRWkVhFAfLjxkz+2wl0MjCb1B/5C7gX50PKKUrsRgsXLYmvxvJpXiaT2/sBdijeF+Q73U2lwCLXEDSgtymVIyjJrwZVTwoVOte9g40SJ97M88tGVX6MRiz1WfqfWm3e8uUWzFvXc8uW55138nxEkp5an5FHg2Fo86gD4s7RRyHtO0AVFBeOpFJranUi5ejHmYLcqw0e/d5yqCtlEd01QwGk/G10IxKoMtrG9emqi57glHbk46sXKt/DFQF6/6aXxbKdZBJlIel8ksA9sgFGvZq/Ir4VuBRthMAp7VolyzFbeLtrrCyDzBtFndqEiIhiF/ac+HS76AYJnmbfGDFyBdYd27QPATjmrP5Pyquz0RH6wX+Y3C5TI0WBycJo/CCxGPvOvRl4aiJFVVPVsZlHqHGbeUIMOJERqZP6eL19L7rt7BphoLV5UVgnov3FX8pMy4L4fsVGC/8Pvqn01swWFgEevTDdMwUErY3907jZYQ9RkpqwntpwY4HUix2doAwdNi9ETwYofUkpfYLSBYait/GE3MG+FV7N9bl2t5FStOgzBfERbjkQq9WBBmPmRYdFS/vsLoeM0a8nrtJbPkGaSUz+SnVPnMV2bU0TojVGc17ECo/JEm9W0fj3Kp2UdvjfPE=
+    on_success: change
