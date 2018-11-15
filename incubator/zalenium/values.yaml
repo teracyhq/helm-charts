@@ -1,0 +1,199 @@
+# Default values for zalenium.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+serviceAccount:
+  create: false
+  ## Use the following Kubernetes Service Account name if not created
+  name: zalenium
+
+rbac:
+  create: false
+  ## Run the zalenium hub container with the ability to deploy/manage containers of jobs
+  ## cluster-wide or only within namespace
+  clusterWideAccess: false
+
+hub:
+  name: hub
+
+  replicaCount: 1
+
+  strategyType: Recreate
+
+  image:
+    repository: dosel/zalenium
+    tag: 3
+    pullPolicy: IfNotPresent
+
+  ## The port which the hub listens on
+  port: 4444
+
+  ## Set the JAVA_OPTS environment variable
+  ## If you find your selenium hub is OOMKilled, try adding -XX:+UseSerialGC
+  javaOpts: "-Xmx400m -XX:+UseSerialGC"
+
+  ## Set the SE_OPTS environment variable
+  ## ref: http://www.seleniumhq.org/docs/07_selenium_grid.jsp#node-configuration
+  # seOpts:
+
+  ## Defining a JMX port will open the port on the container, however, it
+  ## requires additional javaOpts, ie
+  ## javaOpts: >
+  ##   -Dcom.sun.management.jmxremote.port=4000
+  ##   -Dcom.sun.management.jmxremote.authenticate=false
+  ##   -Dcom.sun.management.jmxremote.ssl=false
+  ## ref: http://openjdk.java.net/groups/jmx/
+  # jmxPort: 4000
+
+  livenessProbe:
+    enabled: true
+
+  readinessProbe:
+    enabled: true
+
+  resources:
+    limits:
+      cpu: ".5"
+      memory: "512Mi"
+
+  ## Start arguments for Zalenium hub itself
+  ## https://github.com/zalando/zalenium/blob/master/docs/usage_examples.md
+  desiredContainers: 2
+  maxDockerSeleniumContainers: 10
+  sauceLabsEnabled: false
+  browserStackEnabled: false
+  testingBotEnabled: false
+  videoRecordingEnabled: true
+  cpuRequest: 200m
+  cpuLimit: 500m
+  memRequest: 200Mi
+  screenWidth: 1440
+  screenHeight: 900
+  timeZone: "UTC"
+  seleniumImageName: "elgalu/selenium"
+  maxTestSessions: 1
+  debugEnabled: false
+  keepOnlyFailedTests: false
+  sendAnonymousUsageInfo: false
+
+  # Environment variables passed to Zalenium hub.
+  sauceUserName: blank
+  sauceAccessKey: blank
+  browserStackUser: blank
+  browserStackKey: blank
+  testingBotKey: blank
+  testingBotSecret: blank
+
+services:
+  type: ClusterIP
+  serviceSessionAffinity: None
+  targetPort: 4444
+  port: 4444
+  #nodePort: 8080
+
+ingress:
+  enabled: false
+  # annotations:
+  #   kubernetes.io/ingress.class: nginx
+  #   nginx.ingress.kubernetes.io/rewrite-target: /
+    # kubernetes.io/tls-acme: "true"
+  tls: false
+  hostname: zalenium.foobar.com
+  # secretName:
+  path: /
+
+# pvs:
+#  videos:
+#    enabled: false
+#    accessMode: ReadWriteOnce
+#    size: 10Gi
+#    hostPath:
+#      path: /data/zalenium-shared/
+#  data:
+#    enabled: false
+#    accessMode: ReadWriteOnce
+#    size: 10Gi
+#    hostPath:
+#      path: /tmp/mounted
+
+# ## Persist data to a persistent volume
+# pvcs:
+#  videos:
+#    enabled: false
+#     # existingClaim:
+#     ## data Persistent Volume Storage Class
+#     ## If defined, storageClassName: <storageClass>
+#     ## If set to "-", storageClassName: "", which disables dynamic provisioning
+#     ## If undefined (the default) or set to null, no storageClassName spec is
+#     ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+#     ##   GKE, AWS & OpenStack)
+#     ##
+#     # storageClass: "-"
+#    accessMode: ReadWriteOnce
+#    size: 10Gi
+#  data:
+#    enabled: false
+#     # existingClaim:
+#     ## data Persistent Volume Storage Class
+#     ## If defined, storageClassName: <storageClass>
+#     ## If set to "-", storageClassName: "", which disables dynamic provisioning
+#     ## If undefined (the default) or set to null, no storageClassName spec is
+#     ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+#     ##   GKE, AWS & OpenStack)
+#     ##
+#     # storageClass: "-"
+#    accessMode: ReadWriteOnce
+#    size: 10Gi
+
+## Volumes mount and storage
+mountStorage:
+  videos:
+    enabled: true
+    mountPath: /home/seluser/videos
+    pvcs:
+      enabled: false
+      ## If true will use existing PVC instead of creating one
+      # useExisting: false
+      ## Name of existing PVC to be used in the zalenium deployment
+      # name:
+      ## data Persistent Volume Storage Class
+      ## If defined, storageClassName: <storageClass>
+      ## If set to "-", storageClassName: "", which disables dynamic provisioning
+      ## If undefined (the default) or set to null, no storageClassName spec is
+      ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+      ##   GKE, AWS & OpenStack)
+      ##
+      # storageClass: "-"
+      accessMode: ReadWriteOnce
+      size: 10Gi
+    pvs:
+      enabled: false
+      accessMode: ReadWriteOnce
+      size: 10Gi
+      hostPath:
+        path: /data/zalenium-shared/
+  data:
+    enabled: true
+    mountPath: /tmp/mounted
+    pvcs:
+      enabled: false
+      ## If true will use existing PVC instead of creating one
+      # useExisting: false
+      ## Name of existing PVC to be used in the zalenium deployment
+      # name:
+      ## data Persistent Volume Storage Class
+      ## If defined, storageClassName: <storageClass>
+      ## If set to "-", storageClassName: "", which disables dynamic provisioning
+      ## If undefined (the default) or set to null, no storageClassName spec is
+      ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+      ##   GKE, AWS & OpenStack)
+      ##
+      # storageClass: "-"
+      accessMode: ReadWriteOnce
+      size: 10Gi
+    pvs:
+      enabled: false
+      accessMode: ReadWriteOnce
+      size: 10Gi
+      hostPath:
+        path: /tmp/mounted
