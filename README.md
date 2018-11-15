@@ -6,8 +6,8 @@ Use this repository to submit official Helm Charts for Teracy Helm Chart's repo.
 
 Just do the following:
 ```
-$ helm repo add teracyhq https://teracyhq.storage.googleapis.com/
-$ helm install teracyhq/<chart-name>
+$ helm repo add teracy https://teracyhq.storage.googleapis.com/
+$ helm install teracy/<chart-name>
 ```
 
 For more information on using Helm, refer to the [Helm's documentation](https://github.com/kubernetes/helm#docs).
@@ -17,8 +17,8 @@ For more information on using Helm, refer to the [Helm's documentation](https://
 
 Just do the following:
 ```
-$ helm repo add teracyhq-incubator https://teracyhq_incubator.storage.googleapis.com/
-$ helm install teracyhq-incubator/<chart-name>
+$ helm repo add teracy-incubator https://teracyhq_incubator.storage.googleapis.com/
+$ helm install teracy-incubator/<chart-name>
 ```
 
 ## Chart Format
