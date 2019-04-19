@@ -40,7 +40,8 @@ mysqlha:
     slave.cnf: |
       # Apply this config only on slaves.
       [mysqld]
-      super-read-only
+      super-read-only # only available >= 5.7.8
+      # read-only # uncomment this when mysql < 5.7.8
       skip_name_resolve
 
 ## Enable persistence using Persistent Volume Claims

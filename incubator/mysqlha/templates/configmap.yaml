@@ -14,8 +14,13 @@ data:
     server-id=@@SERVER_ID@@
   create-replication-user.sh: |-
     #!/bin/bash
-    set -e
 
     mysql -h 127.0.0.1 --verbose -e "CREATE USER IF NOT EXISTS '${MYSQL_REPLICATION_USER}' IDENTIFIED BY '${MYSQL_REPLICATION_PASSWORD}';"
-    mysql -h 127.0.0.1 --verbose -e "GRANT PROCESS, RELOAD, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO '${MYSQL_REPLICATION_USER}';"
+    retVal=$?
+    if [ $retVal -ne 0 ]; then
+      echo "error reported above so we need to retry..."
+      mysql -h 127.0.0.1 --verbose -e "GRANT PROCESS, RELOAD, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO '${MYSQL_REPLICATION_USER}' IDENTIFIED BY '${MYSQL_REPLICATION_PASSWORD}';"
+    else
+      mysql -h 127.0.0.1 --verbose -e "GRANT PROCESS, RELOAD, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO '${MYSQL_REPLICATION_USER}';"
+    fi
     mysql -h 127.0.0.1 --verbose -e "FLUSH PRIVILEGES;"

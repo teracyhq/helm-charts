@@ -21,6 +21,31 @@ $ helm install --name my-release incubator/mysqlha
 
 The command deploys MySQL cluster on the Kubernetes cluster in the default configuration. The [configuration](#configuration) section lists the parameters that can be configured during installation.
 
+
+## Installing the Chart with MySQL 5.5
+
+Create the `override.yaml` file with the following content:
+
+```yaml
+mysqlImage: mysql:5.5
+
+mysqlha:
+  configFiles:
+    slave.cnf: |
+      # Apply this config only on slaves.
+      [mysqld]
+      # super-read-only # only available >= 5.7.8
+      read-only # uncomment this when mysql < 5.7.8
+      skip_name_resolve
+```
+
+And install the chart:
+
+```bash
+$ helm install --name my-release incubator/mysqlha -f override.yaml
+```
+
+
 ### Uninstall
 
 To uninstall/delete the `my-release` deployment:
