@@ -1,0 +1,86 @@
+{{- $fullname := include "duplicity.fullname" . -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $fullname }}
+  labels:
+    app.kubernetes.io/name: {{ include "duplicity.name" . }}
+    helm.sh/chart: {{ include "duplicity.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: {{ $fullname }}
+      labels:
+        app.kubernetes.io/name: {{ include "duplicity.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.repository }}:{{ .Values.tag }}"
+        imagePullPolicy: {{ .Values.pullPolicy }}
+        command:
+        - sh
+        - "-c"
+        - |
+          set -ex
+          if [ "$OPERATION" = "restore" ]; then
+            duplicity --force --time=$TIME $OPTS $TARGET_URL /
+          elif [ "$OPERATION" = "backup" ]; then
+            duplicity $ACTION $INCLUDE_OPTS --exclude=** --allow-source-mismatch $OPTS / $TARGET_URL
+          else
+            echo "\$OPERATION is not specified, must be `backup` or `restore`"
+          fi
+        {{- if .Values.volumeMounts }}
+        volumeMounts:
+{{ toYaml .Values.volumeMounts | indent 8 }}
+        {{- end }}
+        envFrom:
+        - configMapRef:
+            name: {{ $fullname }}
+        - secretRef:
+            name: {{ $fullname }}
+        {{- if .Values.resources }}
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+        {{- end }}
+  {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- if .Values.volumes }}
+      volumes:
+      {{- range .Values.volumes }}
+      {{- if .persistentVolumeClaim }}
+      - name: {{ .name }}
+        persistentVolumeClaim:
+          {{- if .persistentVolumeClaim.existing }}
+          claimName: {{ .persistentVolumeClaim.claimName }}
+          {{- else }}
+          claimName: {{ $fullname }}-{{ .persistentVolumeClaim.claimName }}
+          {{- end }}
+      {{- else }}
+      - {{ . | toYaml | nindent 8 | trim }}
+      {{- end }}
+      {{- end }}
+    {{- end }}
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.imagePullSecrets | indent 6 }}
+    {{- end }}
