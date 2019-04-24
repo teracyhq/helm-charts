@@ -1,0 +1,32 @@
+{{- $fullName := include "duplicity.fullname" . -}}
+{{- $name := include "duplicity.name" . -}}
+{{- $chart := include "duplicity.chart" . -}}
+{{- range $key, $val := .Values.pvcs }}
+{{- if $val.enabled }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ $fullName }}-{{ $key }}
+  labels:
+    app.kubernetes.io/name: {{ $name }}
+    helm.sh/chart: {{ $chart }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+spec:
+  {{- if $val.accessModes }}
+  accessModes:
+{{ toYaml $val.accessModes | indent 2 }}
+{{- end }}
+  resources:
+    requests:
+      storage: {{ $val.size | quote }}
+{{- if $val.storageClass }}
+{{- if (eq "-" $val.storageClass) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ $val.storageClass }}"
+{{- end }}
+{{- end }}
+---
+{{- end }}
+{{- end }}

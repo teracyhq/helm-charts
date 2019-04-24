@@ -1,0 +1,71 @@
+repository: teracy/duplicity
+tag: latest
+pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+
+configMap: # for env vars of the job
+  GS_PROJECT_ID:
+  TARGET_URL:
+  TIME: now
+  OPTS: # duplicity more options if any
+  INCLUDE_OPTS: # for backup, example below:
+  # INCLUDE_OPTS: >-
+  #   --include=/xtrabackup_backupfiles
+  #   --include=/mnt/storage
+  ACTION: full # or 'incr' for the backup action, full by default
+  OPERATION: # backup or restore, none by default
+
+secret: # for env vars of the job
+  PASSPHRASE: # fill yours
+  GS_ACCESS_KEY_ID: # fill yours
+  GS_SECRET_ACCESS_KEY: # fill yours
+
+volumeMounts: # for the job
+  # - name: xtrabackup
+  #   mountPath: /xtrabackup_backupfiles
+  # - name: storage
+  #   mountPath: /mnt/storage/
+
+volumes: # for the job
+  # - name: xtrabackup
+  #   persistentVolumeClaim:
+  #     claimName: xtrabackup
+  #     existing: false # true means exact claimName, false means use the dynamically created claimName from pvcs
+  # - name: storage
+  #   persistentVolumeClaim:
+  #     claimName: storage
+  #     existing: false
+
+pvcs: # can create pvcs dynamically
+  # xtrabackup:
+  #   enabled: true # or false
+  #   # data Persistent Volume Storage Class
+  #   # If defined, storageClassName: <storageClass>
+  #   # If set to "-", storageClassName: "", which disables dynamic provisioning
+  #   # If undefined (the default) or set to null, no storageClassName spec is
+  #   #   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  #   #   GKE, AWS & OpenStack)
+  #   #
+  #   # storageClass: "-"
+  #   accessModes:
+  #     - ReadWriteOnce
+  #   size: 4Gi
+  # storage:
+  #   enabled: true # or false
+  #   accessModes:
+  #     - ReadWriteOnce
+  #   size: 4Gi
+
+# other common config for the job definition
+resources:
+
+nodeSelector:
+
+affinity:
+
+tolerations:
+
+imagePullSecrets:
