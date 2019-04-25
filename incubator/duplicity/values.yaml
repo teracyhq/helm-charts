@@ -23,6 +23,16 @@ secret: # for env vars of the job
   GS_ACCESS_KEY_ID: # fill yours
   GS_SECRET_ACCESS_KEY: # fill yours
 
+command: |
+  set -ex
+  if [ "$OPERATION" = "restore" ]; then
+    duplicity --force --time=$TIME $OPTS $TARGET_URL /
+  elif [ "$OPERATION" = "backup" ]; then
+    duplicity $ACTION $INCLUDE_OPTS --exclude=** --allow-source-mismatch $OPTS / $TARGET_URL
+  else
+    echo "\$OPERATION is not specified, must be `backup` or `restore`"
+  fi
+
 volumeMounts: # for the job
   # - name: xtrabackup
   #   mountPath: /xtrabackup_backupfiles

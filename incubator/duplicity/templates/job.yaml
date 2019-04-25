@@ -31,14 +31,7 @@ spec:
         - sh
         - "-c"
         - |
-          set -ex
-          if [ "$OPERATION" = "restore" ]; then
-            duplicity --force --time=$TIME $OPTS $TARGET_URL /
-          elif [ "$OPERATION" = "backup" ]; then
-            duplicity $ACTION $INCLUDE_OPTS --exclude=** --allow-source-mismatch $OPTS / $TARGET_URL
-          else
-            echo "\$OPERATION is not specified, must be `backup` or `restore`"
-          fi
+{{ .Values.command | indent 10 }}
         {{- if .Values.volumeMounts }}
         volumeMounts:
 {{ toYaml .Values.volumeMounts | indent 8 }}
