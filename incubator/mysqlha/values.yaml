@@ -75,16 +75,15 @@ restore:
   enabled: false
   image: teracy/xtrabackup:2.4
   command: | # default command, should override this as you wish
-    # FIXME(hoatle): restore the 2nd time did not work:
-    # InnoDB: Log file ./ib_logfile1 is of different size 50331648 bytes than other log files 8388608 bytes!
-    # InnoDB: Plugin initialization aborted with error Generic error
-    # xtrabackup: innodb_init(): Error occured.
     set -ex
-    xtrabackup --decompress
-    xtrabackup --defaults-file=/xtrabackup_backupfiles/backup-my.cnf --prepare
+    mkdir -p /xtrabackup_tmp/
+    cp -r /xtrabackup_backupfiles/* /xtrabackup_tmp/
+    xtrabackup --decompress --target-dir=/xtrabackup_tmp/
+    xtrabackup --defaults-file=/xtrabackup_tmp/backup-my.cnf --prepare --target-dir=/xtrabackup_tmp/
     # make sure /var/lib/mysql is empty
     rm -rf /var/lib/mysql/* # dangerous here
-    xtrabackup --copy-back
+    xtrabackup --copy-back --target-dir=/xtrabackup_tmp/
+    rm -rf /xtrabackup_tmp/
   extraVolumeMounts:
 
 backup:
