@@ -16,6 +16,23 @@ spec:
         app: {{ template "fullname" . }}
     spec:
       initContainers:
+      {{- if .Values.restore.enabled }}
+      - name: restore-mysql
+        image: {{ .Values.restore.image }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        command:
+          - bash
+          - "-c"
+          - |
+{{ .Values.restore.command | indent 12 }}
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+          subPath: mysql
+        {{- if .Values.restore.extraVolumeMounts }}
+{{ toYaml .Values.restore.extraVolumeMounts | indent 8 }}
+        {{- end }}
+      {{- end }}
       - name: clone-mysql
         image: {{ .Values.xtraBackupImage }}
         command:
@@ -160,7 +177,7 @@ spec:
           - "-c"
           - |
             set -ex
-
+            # TODO(hoatle): retry + timeout support
             echo "Waiting for mysqld to be ready (accepting connections)"
             until mysql -h 127.0.0.1 -e "SELECT 1"; do sleep 5; done
 
@@ -216,6 +233,38 @@ spec:
           requests:
             cpu: 100m
             memory: 100Mi
+      {{- if .Values.backup.enabled }}
+      - name: backup-mysql
+        image: {{ .Values.backup.image }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        env:
+        - name: MYSQL_HOST
+          value: 127.0.0.1
+        - name: MYSQL_PWD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "fullname" . }}
+              key: mysql-root-password
+        - name: MYSQL_REPLICATION_USER
+          value: {{ .Values.mysqlha.mysqlReplicationUser }}
+        - name: MYSQL_REPLICATION_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "fullname" . }}
+              key: mysql-replication-password
+        command:
+          - bash
+          - "-c"
+          - |
+{{ .Values.backup.command | indent 12 }}
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+          subPath: mysql
+        {{- if .Values.backup.extraVolumeMounts }}
+{{ toYaml .Values.backup.extraVolumeMounts | indent 8 }}
+        {{- end }}
+      {{- end }}
       volumes:
       - name: conf
         emptyDir: {}
@@ -224,6 +273,9 @@ spec:
           name: {{ template "fullname" . }}
       - name: scripts
         emptyDir: {}
+      {{- if .Values.extraVolumes }}
+{{ toYaml .Values.extraVolumes | indent 6 }}
+      {{- end }}
 {{- if .Values.persistence.enabled }}
   volumeClaimTemplates:
   - metadata:

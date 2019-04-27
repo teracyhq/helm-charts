@@ -2,7 +2,9 @@
 ## ref: https://hub.docker.com/r/library/mysql/tags/
 ##
 mysqlImage: mysql:5.7.13
+# TODO(hoatle): use teracy/xtrabackup:2.4 by default instead
 xtraBackupImage: gcr.io/google-samples/xtrabackup:1.0
+imagePullPolicy: IfNotPresent
 
 mysqlha:
   replicaCount: 3
@@ -58,10 +60,42 @@ persistence:
   # storageClass: "-"
   accessModes:
   - ReadWriteOnce
-  size: 10Gi
+  size: 4Gi
   annotations: {}
 
 resources:
   requests:
     cpu: 100m
     memory: 128Mi
+
+extraVolumes:
+
+# restore data from a PV to /var/lib/mysql/
+restore:
+  enabled: false
+  image: teracy/xtrabackup:2.4
+  command: | # default command, should override this as you wish
+    # FIXME(hoatle): restore the 2nd time did not work:
+    # InnoDB: Log file ./ib_logfile1 is of different size 50331648 bytes than other log files 8388608 bytes!
+    # InnoDB: Plugin initialization aborted with error Generic error
+    # xtrabackup: innodb_init(): Error occured.
+    set -ex
+    xtrabackup --decompress
+    xtrabackup --defaults-file=/xtrabackup_backupfiles/backup-my.cnf --prepare
+    # make sure /var/lib/mysql is empty
+    rm -rf /var/lib/mysql/* # dangerous here
+    xtrabackup --copy-back
+  extraVolumeMounts:
+
+backup:
+  enabled: false
+  image: teracy/xtrabackup:2.4
+  command: |
+    set -ex
+    echo "Waiting for mysqld to be ready (accepting connections)"
+    until mysql -h 127.0.0.1 -e "SELECT 1"; do sleep 5; done
+    rm -rf /xtrabackup_backupfiles/*
+    xtrabackup --backup --compress --host=$MYSQL_HOST --user=$MYSQL_REPLICATION_USER --password=$MYSQL_REPLICATION_PASSWORD
+    tail -f /dev/null # keep running
+  extraVolumeMounts:
+
