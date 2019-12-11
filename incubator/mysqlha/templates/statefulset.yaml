@@ -10,6 +10,10 @@ metadata:
 spec:
   serviceName: {{ template "fullname" . }}
   replicas: {{ .Values.mysqlha.replicaCount }}
+  {{- if .Values.updateStrategy }}
+  updateStrategy:
+    type: {{ default "RollingUpdate" .Values.updateStrategy.type }}
+  {{- end }}
   template:
     metadata:
       labels:
