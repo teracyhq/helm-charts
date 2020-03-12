@@ -3,7 +3,7 @@ sudo: false
 env:
   global:
   - HELM_URL=https://storage.googleapis.com/kubernetes-helm
-  - HELM_TARBALL=helm-v2.9.1-linux-amd64.tar.gz
+  - HELM_TARBALL=helm-dev-v3-linux-amd64.tar.gz
   - ALLOW_OVERWRITE_INDEX_FILE=true
 before_install:
 - git submodule update --init --recursive
@@ -12,7 +12,6 @@ install:
 - wget -q ${HELM_URL}/${HELM_TARBALL}
 - tar xzfv ${HELM_TARBALL}
 - PATH=`pwd`/linux-amd64/:$PATH
-- helm init --client-only
 - if [ ! -d ${HOME}/google-cloud-sdk ]; then export CLOUDSDK_CORE_DISABLE_PROMPTS=1;
   curl https://sdk.cloud.google.com | bash; fi
 - source /home/travis/google-cloud-sdk/path.bash.inc

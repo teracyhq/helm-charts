@@ -1,3 +1,6 @@
+kubeMeta:
+  batchApiVersion: batch/v1
+
 repository: teracy/duplicity
 tag: latest
 pullPolicy: IfNotPresent
