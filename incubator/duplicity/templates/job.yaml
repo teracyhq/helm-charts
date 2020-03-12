@@ -1,5 +1,5 @@
 {{- $fullname := include "duplicity.fullname" . -}}
-apiVersion: batch/v1
+apiVersion: {{ default "batch/v1" .Values.kubeMeta.batchApiVersion }}
 kind: Job
 metadata:
   name: {{ $fullname }}
