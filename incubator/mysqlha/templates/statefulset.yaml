@@ -9,6 +9,9 @@ metadata:
     heritage: "{{ .Release.Service }}"
 spec:
   serviceName: {{ template "fullname" . }}
+  selector:
+    matchLabels:
+      app: {{ template "fullname" . }}
   replicas: {{ .Values.mysqlha.replicaCount }}
   {{- if .Values.updateStrategy }}
   updateStrategy:
