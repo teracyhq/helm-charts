@@ -5,11 +5,9 @@ Teracy's helm charts to deploy applications to Kubernetes using Helm.
 ## How to use
 
 ```bash
-$ helm repo add teracy https://teracyhq.github.io/helm-charts
+$ helm repo add teracy https://charts.teracy.com
 $ helm install teracy/<chart-name>
 ```
-
-//TODO: Use this domain (https://charts.teracy.com) instead when it's available.
 
 
 ## How to develop
