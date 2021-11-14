@@ -2,5 +2,4 @@ apiVersion: v1
 appVersion: "0.1"
 description: duplicity chart for Kubernetes
 name: duplicity
-version: 0.1.0
-
+version: 0.1.1-alpha.1
