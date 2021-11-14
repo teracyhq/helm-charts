@@ -1,0 +1,60 @@
+apiVersion: v1
+entries:
+  duplicity:
+  - apiVersion: v1
+    appVersion: "0.1"
+    created: "2021-11-14T14:28:53.625342485Z"
+    description: duplicity chart for Kubernetes
+    digest: 7bbc612ca868db690058f619da95d75db5834d8fecf4263a11ebbc5d535976ea
+    name: duplicity
+    urls:
+    - https://github.com/teracyhq/helm-charts/releases/download/duplicity-0.1.1-alpha.1/duplicity-0.1.1-alpha.1.tgz
+    version: 0.1.1-alpha.1
+  mysqlha:
+  - apiVersion: v1
+    appVersion: 5.7.13
+    created: "2021-11-14T14:28:53.74740562Z"
+    description: MySQL cluster with a single master and zero or more slave replicas
+    digest: 4cab0ea24d08076e7aa9f699343bf635e803bad92f8f2fd529103230ad3a4d20
+    home: https://www.mysql.com/
+    icon: https://www.mysql.com/common/logos/logo-mysql-170x115.png
+    keywords:
+    - mysql
+    - database
+    - sql
+    maintainers:
+    - email: jason.poon@microsoft.com
+      name: jpoon
+    - email: jon.bitbucket@livewire-uk.co.uk
+      name: jonhoare
+    name: mysqlha
+    urls:
+    - https://github.com/teracyhq/helm-charts/releases/download/mysqlha-0.4.1-alpha.1/mysqlha-0.4.1-alpha.1.tgz
+    version: 0.4.1-alpha.1
+  pv-join:
+  - apiVersion: v1
+    appVersion: "0.1"
+    created: "2021-11-14T14:28:53.880645239Z"
+    description: A Helm chart for Kubernetes to join persistent volumes to do tasks
+    digest: f6fd780a0e62007ab077e6cad0e430ea729f7205795a7b6788f0e4d2ce73ac31
+    name: pv-join
+    urls:
+    - https://github.com/teracyhq/helm-charts/releases/download/pv-join-0.1.1-alpha.1/pv-join-0.1.1-alpha.1.tgz
+    version: 0.1.1-alpha.1
+  zalenium:
+  - apiVersion: v1
+    appVersion: 3.14.0
+    created: "2021-11-14T14:28:53.988901892Z"
+    description: zalenium helm chart for selenium grid
+    digest: e73188cbd7093f68d616537f47a2294e3f38253db300a38f308d247577a05659
+    home: https://opensource.zalando.com/zalenium
+    maintainers:
+    - email: hieptq8888@gmail.com
+      name: hieptq
+    name: zalenium
+    sources:
+    - https://github.com/teracyhq/helm-charts
+    urls:
+    - https://github.com/teracyhq/helm-charts/releases/download/zalenium-0.1.1-alpha.1/zalenium-0.1.1-alpha.1.tgz
+    version: 0.1.1-alpha.1
+generated: "2021-11-14T14:28:53.475149488Z"
