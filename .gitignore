@@ -1,0 +1,2 @@
+kind/.kube/* 
+!kind/.kube/.gitkeep
