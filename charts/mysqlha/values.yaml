@@ -26,7 +26,6 @@ mysqlha:
   # mysqlUser:
   # mysqlPassword: ## Default: random 10 character string
 
-
   ## Allow unauthenticated access, uncomment to enable
   ##
   # mysqlAllowEmptyPassword: true
@@ -102,4 +101,3 @@ backup:
     xtrabackup --prepare --user=${MYSQL_REPLICATION_USER} --password=${MYSQL_REPLICATION_PASSWORD} --target-dir=/var/lib/mysql
     tail -f /dev/null # keep running
   extraVolumeMounts:
-
