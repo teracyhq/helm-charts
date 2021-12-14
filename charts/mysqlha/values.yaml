@@ -98,6 +98,8 @@ backup:
     until mysql -h 127.0.0.1 -e "SELECT 1"; do sleep 5; done
     rm -rf /xtrabackup_backupfiles/*
     xtrabackup --backup --compress --host=$MYSQL_HOST --user=$MYSQL_REPLICATION_USER --password=$MYSQL_REPLICATION_PASSWORD
+    # Prepare the backup.
+    xtrabackup --prepare --user=${MYSQL_REPLICATION_USER} --password=${MYSQL_REPLICATION_PASSWORD} --target-dir=/var/lib/mysql
     tail -f /dev/null # keep running
   extraVolumeMounts:
 
