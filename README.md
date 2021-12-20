@@ -43,7 +43,7 @@ $ git push origin gh-pages
 - Make sure github actions is enabled for your repository
 
 - You should see the generated `index.yaml` file at:
-https://<your_github_account>.github.io/iorad-helm-charts/index.yaml
+https://<your_github_account>.github.io/teracy-helm-charts/index.yaml
 
 
 ### Update helm charts
