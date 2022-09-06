@@ -201,7 +201,10 @@ spec:
             if [[ -s xtrabackup_slave_info ]]; then
               # XtraBackup already generated a partial "CHANGE MASTER TO" query
               # because we're cloning from an existing slave.
+              # the file has semicolum character, eg: CHANGE MASTER TO MASTER_LOG_FILE='mysqlha-0-bin.000003', MASTER_LOG_POS=790;
+              # so we need to remove that ; character
               cp xtrabackup_slave_info change_master_to.sql.in
+              sed -i 's/;$//' change_master_to.sql.in
             elif [[ -s xtrabackup_binlog_info ]]; then
               # We're cloning directly from master. Parse binlog position.
               [[ $(cat xtrabackup_binlog_info) =~ ^(.*?)[[:space:]]+(.*?)$ ]] || exit 1
@@ -211,18 +214,15 @@ spec:
 
             # Check if we need to complete a clone by starting replication.
             if [[ -s change_master_to.sql.in ]]; then
-
               # In case of container restart, attempt this at-most-once.
               cp change_master_to.sql.in change_master_to.sql.orig
-              cat > change_master_to.sql.orig <<EOF
+              mysql -h 127.0.0.1 --verbose<<EOF
+              STOP SLAVE IO_THREAD;
+              $(<change_master_to.sql.orig),
               MASTER_HOST='{{ template "fullname" . }}-0.{{ template "fullname" . }}',
               MASTER_USER='${MYSQL_REPLICATION_USER}',
               MASTER_PASSWORD='${MYSQL_REPLICATION_PASSWORD}',
-              MASTER_CONNECT_RETRY=10
-              EOF
-              mysql -h 127.0.0.1 --verbose<<EOF
-              STOP SLAVE IO_THREAD;
-              $(<change_master_to.sql.orig);
+              MASTER_CONNECT_RETRY=10;
               START SLAVE;
             EOF
             fi
