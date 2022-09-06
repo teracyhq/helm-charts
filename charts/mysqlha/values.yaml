@@ -4,9 +4,8 @@
 kubeMeta:
   appsApiVersion: apps/v1
 
-mysqlImage: mysql:5.7.13
-# TODO(hoatle): use teracy/xtrabackup:2.4 by default instead
-xtraBackupImage: gcr.io/google-samples/xtrabackup:1.0
+mysqlImage: mysql:5.7.36
+xtraBackupImage: teracy/xtrabackup:2.4
 imagePullPolicy: IfNotPresent
 
 mysqlha:
@@ -25,7 +24,6 @@ mysqlha:
   ##
   # mysqlUser:
   # mysqlPassword: ## Default: random 10 character string
-
 
   ## Allow unauthenticated access, uncomment to enable
   ##
@@ -100,4 +98,3 @@ backup:
     xtrabackup --backup --compress --host=$MYSQL_HOST --user=$MYSQL_REPLICATION_USER --password=$MYSQL_REPLICATION_PASSWORD
     tail -f /dev/null # keep running
   extraVolumeMounts:
-
