@@ -13,6 +13,26 @@ entries:
   mysqlha:
   - apiVersion: v1
     appVersion: 5.7.13
+    created: "2022-09-06T09:59:57.476299191Z"
+    description: MySQL cluster with a single master and zero or more slave replicas
+    digest: 2dfbee3c5544603b6eacbb528d989106c212bf4a0dad39533b5afbaefc9ed392
+    home: https://www.mysql.com/
+    icon: https://www.mysql.com/common/logos/logo-mysql-170x115.png
+    keywords:
+    - mysql
+    - database
+    - sql
+    maintainers:
+    - email: jason.poon@microsoft.com
+      name: jpoon
+    - email: jon.bitbucket@livewire-uk.co.uk
+      name: jonhoare
+    name: mysqlha
+    urls:
+    - https://github.com/teracyhq/helm-charts/releases/download/mysqlha-0.4.1-alpha.2/mysqlha-0.4.1-alpha.2.tgz
+    version: 0.4.1-alpha.2
+  - apiVersion: v1
+    appVersion: 5.7.13
     created: "2021-11-14T14:28:53.74740562Z"
     description: MySQL cluster with a single master and zero or more slave replicas
     digest: 4cab0ea24d08076e7aa9f699343bf635e803bad92f8f2fd529103230ad3a4d20
