@@ -92,9 +92,31 @@ backup:
   image: teracy/xtrabackup:2.4
   command: |
     set -ex
+
     echo "Waiting for mysqld to be ready (accepting connections)"
-    until mysql -h 127.0.0.1 -e "SELECT 1"; do sleep 5; done
+    until mysql -h 127.0.0.1 -u ${MYSQL_REPLICATION_USER} -e "SELECT 1"; do sleep 5; done
+
+    echo "Waiting for slave to sync";
+    cd /var/lib/mysql
+    if [[ -s xtrabackup_slave_info ]]; then
+      [[ $(awk '{print $4}' xtrabackup_slave_info)  =~ ^MASTER_LOG_FILE=\'(.+)\',$ ]] || exit 1
+      MASTER_LOG_FILE=${BASH_REMATCH[1]}
+
+      [[ $(awk '{print $5}' xtrabackup_slave_info) =~ ^MASTER_LOG_POS=([[:digit:]]+)\;$ ]] || exit 1
+      MASTER_LOG_POS=${BASH_REMATCH[1]}
+
+    elif [[ -s xtrabackup_binlog_info ]]; then
+      [[ $(cat xtrabackup_binlog_info) =~ ^(.*?)[[:space:]]+(.*?)$ ]] || exit 1
+      MASTER_LOG_FILE=${BASH_REMATCH[1]}
+      MASTER_LOG_POS=${BASH_REMATCH[2]}
+    fi
+    # back to the root directory for xtrabackup to store files within the defaut path
+    cd /
+    mysql -h 127.0.0.1 -u ${MYSQL_REPLICATION_USER} -e "SELECT MASTER_POS_WAIT('${MASTER_LOG_FILE}', ${MASTER_LOG_POS})";
+    echo "slave sync done"
     rm -rf /xtrabackup_backupfiles/*
-    xtrabackup --backup --compress --host=$MYSQL_HOST --user=$MYSQL_REPLICATION_USER --password=$MYSQL_REPLICATION_PASSWORD
+    xtrabackup --backup --compress --host=127.0.0.1 --user=$MYSQL_REPLICATION_USER --password=$MYSQL_REPLICATION_PASSWORD
+    echo "backup done"
+    touch /var/lib/mysql/.mysqlha.backup.done
     tail -f /dev/null # keep running
   extraVolumeMounts:
